@@ -4,5 +4,11 @@ svg {
 	
 	circle {
 		fill: black;
+		
+		&.top-ranked {
+			fill: orange;
+			stroke: black;
+			stroke-width: 0.2px;
+		}
 	}
 }

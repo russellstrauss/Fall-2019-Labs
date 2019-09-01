@@ -33,7 +33,8 @@ module.exports = function () {
       var self = this;
       d3.csv('../activity_2/baseball_hr_leaders.csv').then(function (dataset) {
         // Add empty circle elements, one for each row of data
-        var circle = d3.select('body #scatterplot svg').selectAll('circle').data(dataset).enter().append('circle'); // Set axes scales
+        var circle = d3.select('body #scatterplot svg').selectAll('circle').data(dataset).enter().append('circle'); //console.log(dataset);
+        // Set axes scales
 
         var yearScale = d3.scaleLinear().domain([1870, 2017]).range([60, 700]);
         var hrScale = d3.scaleLinear().domain([0, 75]).range([340, 20]);
@@ -57,6 +58,14 @@ module.exports = function () {
           return hrScale(d.homeruns);
         });
         circle.attr('r', '2');
+        self.setTopRankedPlayers(circle);
+      });
+    },
+    setTopRankedPlayers: function setTopRankedPlayers(player) {
+      player.attr('class', function (d, i) {
+        if (d.rank < 4) {
+          return 'top-ranked';
+        }
       });
     }
   };

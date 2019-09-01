@@ -18,6 +18,8 @@ module.exports = function() {
 				// Add empty circle elements, one for each row of data
 				let circle = d3.select('body #scatterplot svg').selectAll('circle').data(dataset).enter().append('circle');
 				
+				//console.log(dataset);
+				
 				// Set axes scales
 				let yearScale = d3.scaleLinear().domain([1870,2017]).range([60,700]);
 				let hrScale = d3.scaleLinear().domain([0,75]).range([340,20]);
@@ -63,6 +65,16 @@ module.exports = function() {
 				});
 				
 				circle.attr('r', '2');
+				self.setTopRankedPlayers(circle);
+			});
+		},
+		
+		setTopRankedPlayers: function(player) {
+			
+			player.attr('class', function(d, i) {
+				if (d.rank < 4) {
+					return 'top-ranked';
+				}
 			});
 		}
 	}
