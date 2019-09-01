@@ -33,7 +33,10 @@ module.exports = function () {
       var self = this;
       d3.csv('../activity_2/baseball_hr_leaders.csv').then(function (dataset) {
         // Add empty circle elements, one for each row of data
-        var circle = d3.select('body #scatterplot svg').selectAll('circle').data(dataset).enter().append('circle'); //console.log(dataset);
+        var g = d3.select('body #scatterplot svg').selectAll('g').data(dataset).enter().append('g');
+        g.attr('class', 'player');
+        g.attr('width', '50');
+        g.attr('height', '50'); //console.log(dataset);
         // Set axes scales
 
         var yearScale = d3.scaleLinear().domain([1870, 2017]).range([60, 700]);
@@ -51,13 +54,7 @@ module.exports = function () {
         svg.append('text').attr('class', 'label').attr('transform', 'translate(15,200) rotate(90)').text('Home Runs (HR)'); // Add graph title
 
         svg.append('text').attr('class', 'title').attr('transform', 'translate(250,30)').text('Top 10 HR Leaders per MLB Season');
-        circle.attr('cx', function (d, i) {
-          return yearScale(d.year);
-        });
-        circle.attr('cy', function (d, i) {
-          return hrScale(d.homeruns);
-        });
-        circle.attr('r', '2');
+        var circle = self.setCirclePositionWithLabels(g, yearScale, hrScale);
         self.setTopRankedPlayers(circle);
       });
     },
@@ -67,6 +64,27 @@ module.exports = function () {
           return 'top-ranked';
         }
       });
+    },
+    setCirclePositionWithLabels: function setCirclePositionWithLabels(g, yearScale, hrScale) {
+      var circle = g.append('circle');
+      circle.attr('cx', function (d, i) {
+        return yearScale(d.year);
+      });
+      circle.attr('cy', function (d, i) {
+        return hrScale(d.homeruns);
+      });
+      circle.attr('r', '2');
+      var label = g.append('text');
+      label.text(function (d) {
+        return d.name;
+      });
+      label.attr('x', function (d, i) {
+        return yearScale(d.year);
+      });
+      label.attr('y', function (d, i) {
+        return hrScale(d.homeruns);
+      });
+      return circle;
     }
   };
 };

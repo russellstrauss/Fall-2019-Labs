@@ -2,13 +2,36 @@ svg {
 	overflow: visible;
 	border: 1px solid #777;
 	
-	circle {
-		fill: black;
+	.player {
+		position: relative;
+		overflow: visible;
 		
-		&.top-ranked {
-			fill: orange;
-			stroke: black;
-			stroke-width: 0.2px;
+		circle {
+			position: relative;
+			cursor: pointer;
+			fill: #91DDF2;
+			opacity: .75;
+			z-index: 1;
+			
+			&:hover {
+			
+				&+text {
+					opacity: 1;
+				}
+			}
+			
+			&.top-ranked {
+				fill: #0E99D4;
+				stroke: black;
+				stroke-width: 0.6px;
+			}
+		}
+		
+		text {
+			position: relative;
+			z-index: 0;
+			opacity: 0;
 		}
 	}
+	
 }

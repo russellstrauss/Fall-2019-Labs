@@ -16,7 +16,11 @@ module.exports = function() {
 			d3.csv('../activity_2/baseball_hr_leaders.csv').then(function(dataset) {
 				
 				// Add empty circle elements, one for each row of data
-				let circle = d3.select('body #scatterplot svg').selectAll('circle').data(dataset).enter().append('circle');
+				let g = d3.select('body #scatterplot svg').selectAll('g').data(dataset).enter().append('g');
+				
+				g.attr('class', 'player');
+				g.attr('width', '50');
+				g.attr('height', '50');
 				
 				//console.log(dataset);
 				
@@ -56,15 +60,7 @@ module.exports = function() {
 				.attr('transform','translate(250,30)')
 				.text('Top 10 HR Leaders per MLB Season');
 				
-				circle.attr('cx', function(d, i) {
-					return yearScale(d.year);
-				});
-				
-				circle.attr('cy', function(d, i) {
-					return hrScale(d.homeruns);
-				});
-				
-				circle.attr('r', '2');
+				let circle = self.setCirclePositionWithLabels(g, yearScale, hrScale);
 				self.setTopRankedPlayers(circle);
 			});
 		},
@@ -76,6 +72,36 @@ module.exports = function() {
 					return 'top-ranked';
 				}
 			});
+		},
+		
+		setCirclePositionWithLabels: function(g, yearScale, hrScale) {
+			
+			let circle = g.append('circle');
+			
+			circle.attr('cx', function(d, i) {
+				return yearScale(d.year);
+			});
+			
+			circle.attr('cy', function(d, i) {
+				return hrScale(d.homeruns);
+			});
+			
+			circle.attr('r', '2');
+			
+			let label = g.append('text');
+			label.text(function (d) { 
+				return d.name;
+			});
+			
+			label.attr('x', function(d, i) {
+				return yearScale(d.year);
+			});
+			
+			label.attr('y', function(d, i) {
+				return hrScale(d.homeruns);
+			});
+			
+			return circle;
 		}
 	}
 }
