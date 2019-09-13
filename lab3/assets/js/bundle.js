@@ -6,17 +6,58 @@ module.exports = function () {
   return {
     settings: {},
     init: function init() {
-      d3.csv('../activity_1/baseball_hr_leaders_2017.csv').then(function (dataset) {
-        var tr = d3.select('body #homerun-table tbody').selectAll('tr').data(dataset).enter().append('tr');
-        tr.append('td').attr('class', 'rank').text(function (d, i) {
-          return d.rank;
+      d3.csv('../../activity_1_and_activity_2/exoplanets.csv').then(function (dataset) {
+        var circle = d3.select('body svg').selectAll('circle').data(dataset).enter().append('circle');
+        circle.attr('class', 'planet'); // Set axes scales
+
+        var svg = d3.select('svg');
+        var xOffset = 200;
+        var yOffset = 100;
+        var width = window.innerWidth - xOffset;
+        var height = window.innerHeight - yOffset;
+        var maxRadius = 20;
+        var hzdExtent = d3.extent(dataset, function (d) {
+          return +d['habital_zone_distance'];
         });
-        tr.append('td').attr('class', 'player-name').text(function (d, i) {
-          return d.name;
+        var mass = d3.extent(dataset, function (d) {
+          return +d['mass'];
         });
-        tr.append('td').attr('class', 'homerun-count').text(function (d, i) {
-          return d.homeruns;
+        var planetRadius = d3.extent(dataset, function (d) {
+          return +d['radius'];
         });
+        var xScale = d3.scaleLinear().domain(hzdExtent).range([100, width]);
+        var yScale = d3.scaleLog().domain(mass).range([100, height]);
+        var radiusScale = d3.scaleSqrt().domain(planetRadius).range([0, maxRadius]);
+        var colorScale = d3.scaleQuantize().domain(hzdExtent).range(['#FF3300', '#29AD37', '#27EFFF']); // Set circle size
+
+        circle.attr('cx', function (d) {
+          return xScale(d.habital_zone_distance);
+        });
+        circle.attr('cy', function (d) {
+          return yScale(d.mass);
+        });
+        circle.attr('r', function (d) {
+          return radiusScale(d.radius);
+        });
+        circle.attr('fill', function (d) {
+          return colorScale(d.habital_zone_distance);
+        }); // Add habitable zone x-axis
+
+        svg.append('g').attr('class', 'x-axis').attr('transform', 'translate(0, ' + (height + maxRadius) + ')').call(d3.axisBottom(xScale).tickFormat(function (d) {
+          return d;
+        }));
+        svg.append('g').attr('class', 'x-axis').attr('transform', 'translate(0, ' + (yOffset - maxRadius).toString() + ')').call(d3.axisBottom(xScale).tickFormat(function (d) {
+          return d;
+        })); // Add mass y-axis
+
+        svg.append('g').attr('class', 'y-axis').attr('transform', 'translate(90, 0)').call(d3.axisLeft(yScale));
+        svg.append('g').attr('class', 'y-axis').attr('transform', 'translate(' + (width + maxRadius).toString() + ', 0)').call(d3.axisLeft(yScale)); // Label x-axis
+
+        svg.append('text').attr('class', 'label').attr('transform', 'translate(' + (width / 2 - 200).toString() + ',' + (height + 75).toString() + ')').text('Exoplanet Distance from Nearest Habitable Zone'); // // Label y-axis
+
+        svg.append('text').attr('class', 'label').attr('transform', 'translate(35,' + (height / 2 + 100).toString() + ') rotate(-90)').text('Exoplanet Mass'); // // Add graph title
+
+        svg.append('text').attr('class', 'title').attr('transform', 'translate(' + (width / 2 - 100).toString() + ', 50)').text('Exoplanet Mass Vs. Habitability');
       });
     }
   };
@@ -25,99 +66,17 @@ module.exports = function () {
 },{}],2:[function(require,module,exports){
 "use strict";
 
-module.exports = function () {
-  var settings;
-  return {
-    settings: {},
-    init: function init() {
-      var self = this;
-      d3.csv('../activity_2/baseball_hr_leaders.csv').then(function (dataset) {
-        // Add empty circle elements, one for each row of data
-        var g = d3.select('body #scatterplot svg').selectAll('g').data(dataset).enter().append('g');
-        g.attr('class', 'player'); // Set axes scales
-
-        var width = window.innerWidth - 200;
-        var height = window.innerHeight - 100;
-        var yearScale = d3.scaleLinear().domain([1870, 2017]).range([60, width]);
-        var hrScale = d3.scaleLinear().domain([0, 75]).range([height, 20]);
-        var svg = d3.select('svg'); // Add x-axis with markers in 20-year increments
-
-        svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(yearScale).tickFormat(function (d) {
-          return d;
-        })); // Label x-axis
-
-        svg.append('text').attr('class', 'label').attr('transform', 'translate(' + (width / 2).toString() + ',' + (height + 75).toString() + ')').text('MLB Season Year'); // Add y-axis markers in increments of 10
-
-        svg.append('g').attr('class', 'y axis').attr('transform', 'translate(55,0)').call(d3.axisLeft(hrScale)); // Add y-axis label
-
-        svg.append('text') // TODO: measure width and subtract half
-        .attr('class', 'label').attr('transform', 'translate(-15,' + ((height - 115) / 2).toString() + ') rotate(90)').text('Home Runs'); // Add graph title
-
-        svg.append('text') // TODO: measure width and then subtract half
-        .attr('class', 'title').attr('transform', 'translate(' + (width / 2 - 200).toString() + ',30)').text('Top 10 HR Leaders per MLB Season');
-        var circle = self.setCirclePositionWithLabels(g, yearScale, hrScale);
-        self.setTopRankedPlayers(circle);
-      });
-    },
-    setTopRankedPlayers: function setTopRankedPlayers(player) {
-      player.attr('class', function (d, i) {
-        if (d.rank < 4) {
-          return 'top-ranked';
-        }
-      });
-    },
-    setCirclePositionWithLabels: function setCirclePositionWithLabels(g, yearScale, hrScale) {
-      var circle = g.append('circle');
-      var hover = g.append('circle');
-      circle.attr('cx', function (d, i) {
-        return yearScale(d.year);
-      });
-      circle.attr('cy', function (d, i) {
-        return hrScale(d.homeruns);
-      });
-      circle.attr('r', '5');
-      hover.attr('class', 'hover-state');
-      hover.attr('cx', function (d, i) {
-        return yearScale(d.year);
-      });
-      hover.attr('cy', function (d, i) {
-        return hrScale(d.homeruns);
-      });
-      hover.attr('r', '15');
-      var label = g.append('text');
-      label.text(function (d) {
-        return d.name;
-      });
-      label.attr('x', function (d, i) {
-        return yearScale(d.year);
-      });
-      label.attr('y', function (d, i) {
-        return hrScale(d.homeruns);
-      });
-      return circle;
-    }
-  };
-};
-
-},{}],3:[function(require,module,exports){
-"use strict";
-
-var Activity1 = require('./components/activity-1.js');
-
-var Scatterplot = require('./components/scatterplot.js');
+var ExoPlanets = require('./components/exoplanets.js');
 
 var Utilities = require('./utils.js');
 
 (function () {
   document.addEventListener('DOMContentLoaded', function () {
-    var activity1 = document.getElementById('homerun-leaders');
-    if (activity1) Activity1().init();
-    var scatterplot = document.getElementById('scatterplot');
-    if (scatterplot) Scatterplot().init();
+    ExoPlanets().init();
   });
 })();
 
-},{"./components/activity-1.js":1,"./components/scatterplot.js":2,"./utils.js":4}],4:[function(require,module,exports){
+},{"./components/exoplanets.js":1,"./utils.js":3}],3:[function(require,module,exports){
 "use strict";
 
 (function () {
@@ -216,4 +175,4 @@ var Utilities = require('./utils.js');
   module.exports = window.utils;
 })();
 
-},{}]},{},[3]);
+},{}]},{},[2]);
