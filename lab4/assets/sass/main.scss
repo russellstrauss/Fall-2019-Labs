@@ -1,13 +1,25 @@
 /* Imports */
 // This project uses inverted triangle CSS architecture (https://www.xfive.co/blog/itcss-scalable-maintainable-css-architecture/)
 
-// global
-@import 'vars';
-@import 'mixins';
-@import 'elements';
-@import 'global';
+body {
+	padding: 0;
+	margin: 0;
+	
+	font-family: 'Libre Baskerville', serif;
+	font-family: 'Source Serif Pro', serif;
+	font-weight: 600;
+}
 
-@import 'components/activity1';
-@import 'components/scatterplot';
+.activity {
 
-@import 'helpers';
+    rect {
+        fill: white;
+        stroke-width: 1;
+        stroke: black;
+    }
+    
+    .line-plot {
+        fill: none;
+        stroke: black;
+    }
+}
