@@ -1,11 +1,6 @@
 .axis-label {
     text-anchor: middle;
     font-size: 12px;
-    font-weight: semibold;
-}
-
-#main {
-    margin: 20px;
 }
 
 body {
@@ -18,11 +13,13 @@ body {
 }
 
 .activity {
+	width: 100%;
+	height: calc(100vh - 50px);
 
     rect {
-        fill: white;
+        fill: black;
         stroke-width: 1;
-        stroke: black;
+        stroke: rgba(0, 0, 0, .2);
     }
     
     .line-plot {
