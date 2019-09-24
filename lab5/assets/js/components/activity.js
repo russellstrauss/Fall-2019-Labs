@@ -40,8 +40,8 @@ module.exports = function() {
 			// Compute the spacing for bar bands based on all 26 letters
 			barBand = chartHeight / 26;
 			barHeight = barBand * 0.98;
-			barOffset = barBand * .05;
-			actualBarHeight = barBand/3;
+			barOffset = barBand * .15;
+			actualBarHeight = barBand/2;
 
 			var chartG = svg.append('g').attr('transform', 'translate('+[padding.l, padding.t]+')');
 
@@ -64,7 +64,7 @@ module.exports = function() {
 				return lettersMap[filterKey].indexOf(d.letter) >= 0;
 			});
 			
-			frequencyScale = d3.scaleLinear().domain([0,75]).range([0, chartWidth]);
+			frequencyScale = d3.scaleLinear().domain([0, 14]).range([0, chartWidth]);
 			svg.append('g').attr('class', 'x-axis')
 			.attr('transform', 'translate(' + padding.l + ',' + (padding.t - 10).toString() + ')')
 			.call(d3.axisBottom(frequencyScale).tickFormat(function(d){return d;}));
@@ -75,27 +75,34 @@ module.exports = function() {
 			
 			svg.append('text').attr('class', 'label').attr('transform','translate(' + (chartWidth/2 - 40).toString() + ', 20)').text('Letter Frequency (%)');
 			
-			filteredLetters.forEach(function(letter, i) {
-				svg.append('text').attr('class', 'letter-row').attr('transform','translate(' + (padding.l - 20).toString() + ', ' + (barHeight * (i + 1) + padding.t).toString() + ')').text(letter.letter);
-			});
-							
-			var wScale = d3.scaleLinear().domain([0, 75]).range([0, chartWidth]);
-			
 			svg.selectAll('rect')
 			.data(filteredLetters)
 			.enter()
 			.append('rect')
 			.attr('y', function(d, i) {
-				console.log(d);
 				return barHeight * (i + 1) + padding.t - actualBarHeight + barOffset;
 			})
 			.attr('x', padding.l.toString())
 			.attr('height', actualBarHeight)
 			.attr('width', function(d) {
-				return wScale(d.frequency * 100);
+				return frequencyScale(d.frequency * 100);
 			})
 			.style('fill', function(d, i) {
-				return 'rgb(123, 165, 178)';
+				return '#809C63';
+			});
+			
+			filteredLetters.forEach(function(letter, i) {
+				svg.append('text').attr('class', 'letter-row').attr('transform','translate(' + (padding.l - 20).toString() + ', ' + (barHeight * (i + 1) + padding.t).toString() + ')').text(letter.letter);
+				
+				let percentLabel = (letter.frequency * 100).toFixed(1) + '%';
+				if (percentLabel.substr(percentLabel.length - 3) === '.0%') percentLabel = percentLabel.substr(0, percentLabel.length - 3) + '%'; // truncate .0% to whole number
+				console.log(letter.letter, letter.frequency);
+				if (letter.frequency < .007) {// when bar is skinny
+					svg.append('text').attr('class', 'low-percent-label').attr('fill', 'black').attr('transform','translate(75,' + (barHeight * (i + 1) + padding.t).toString() + ')').text(percentLabel);
+				}
+				else {
+					svg.append('text').attr('class', 'percent-label').attr('transform','translate(45,' + (barHeight * (i + 1) + padding.t).toString() + ')').text(percentLabel);
+				}
 			});
 		},
 

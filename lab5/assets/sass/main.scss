@@ -7,8 +7,7 @@ body {
 	padding: 0;
 	margin: 0;
 	
-	font-family: 'Libre Baskerville', serif;
-	font-family: 'Source Serif Pro', serif;
+	font-family: 'Open Sans', sans-serif;
 	font-weight: 600;
 }
 
@@ -19,11 +18,16 @@ body {
     rect {
         fill: black;
         stroke-width: 1;
-        stroke: rgba(0, 0, 0, .2);
+		stroke: rgba(0, 0, 0, .2);
     }
     
-    .line-plot {
-        fill: none;
-        stroke: black;
-    }
+    .percent-label {
+		fill: white;
+		font-size: 12px;
+	}
+	
+	.low-percent-label {
+		fill: black;
+		font-size: 12px;
+	}
 }
