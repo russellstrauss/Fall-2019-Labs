@@ -1,0 +1,32 @@
+.axis-label {
+    text-anchor: middle;
+    font-size: 12px;
+    font-weight: semibold;
+}
+
+#main {
+    margin: 20px;
+}
+
+body {
+	padding: 0;
+	margin: 0;
+	
+	font-family: 'Libre Baskerville', serif;
+	font-family: 'Source Serif Pro', serif;
+	font-weight: 600;
+}
+
+.activity {
+
+    rect {
+        fill: white;
+        stroke-width: 1;
+        stroke: black;
+    }
+    
+    .line-plot {
+        fill: none;
+        stroke: black;
+    }
+}
