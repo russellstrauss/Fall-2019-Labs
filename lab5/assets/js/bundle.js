@@ -15,7 +15,6 @@ module.exports = function () {
     b: 30,
     l: 40
   };
-  var distinctColors = ['#7BA5B2', '#536480', '#433854', '#9FD185', '#DDF663', '#7FBAB4', '#87AB8F', '#6A5D96', '#644266', '#DA253E', '#DC963D', '#D2D721', '#545B95', '#651039', '#AF2220', '#C64343', '#EBDAB8', '#073665', '#041544', '#8BBABA', '#F27442', '#7A6780', '#8F9396', '#DBE1E2', '#9C160D', '#007487'];
   return {
     settings: {},
     init: function init() {
@@ -27,7 +26,7 @@ module.exports = function () {
       var self = this;
       svg = d3.select('svg');
       var svgWidth = window.innerWidth;
-      var svgHeight = window.innerHeight - 50;
+      var svgHeight = window.innerHeight - 75;
       chartWidth = svgWidth - padding.l - padding.r;
       chartHeight = svgHeight - padding.t - padding.b;
       svg.attr('height', svgHeight.toString());
@@ -43,6 +42,12 @@ module.exports = function () {
         self.updateChart('all-letters');
       });
     },
+    resetSVG: function resetSVG() {
+      var remove = document.querySelectorAll('svg *');
+      remove.forEach(function (element) {
+        element.parentNode.removeChild(element);
+      });
+    },
     updateChart: function updateChart(filterKey) {
       var lettersMap = {
         'all-letters': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
@@ -52,6 +57,7 @@ module.exports = function () {
       var filteredLetters = letters.filter(function (d) {
         return lettersMap[filterKey].indexOf(d.letter) >= 0;
       });
+      this.resetSVG();
       frequencyScale = d3.scaleLinear().domain([0, 14]).range([0, chartWidth]);
       svg.append('g').attr('class', 'x-axis').attr('transform', 'translate(' + padding.l + ',' + (padding.t - 10).toString() + ')').call(d3.axisBottom(frequencyScale).tickFormat(function (d) {
         return d;
@@ -71,8 +77,6 @@ module.exports = function () {
         svg.append('text').attr('class', 'letter-row').attr('transform', 'translate(' + (padding.l - 20).toString() + ', ' + (barHeight * (i + 1) + padding.t).toString() + ')').text(letter.letter);
         var percentLabel = (letter.frequency * 100).toFixed(1) + '%';
         if (percentLabel.substr(percentLabel.length - 3) === '.0%') percentLabel = percentLabel.substr(0, percentLabel.length - 3) + '%'; // truncate .0% to whole number
-
-        console.log(letter.letter, letter.frequency);
 
         if (letter.frequency < .007) {
           // when bar is skinny
@@ -100,18 +104,13 @@ module.exports = function () {
         var category = select.options[select.selectedIndex].value;
         self.updateChart(category);
       });
-      document.addEventListener('keypress', function (event) {
-        if (event.code === 'Space') {
-          self.reset();
-        }
-      });
     },
     reset: function reset() {
-      document.querySelector('svg').remove();
-      var svgEl = document.createElement('svg');
-      svgEl.classList.add('activity');
-      document.getElementById('main').prepend(svgEl);
+      this.resetSVG();
       this.setUpScales();
+      var select = d3.select('#categorySelect').node();
+      var category = select.options[select.selectedIndex].value;
+      self.updateChart(category);
     }
   };
 };
