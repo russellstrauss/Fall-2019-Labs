@@ -11,7 +11,7 @@ var cellPadding = 10;
 var chartG = svg.append('g')
     .attr('transform', 'translate('+[padding.l, padding.t]+')');
 
-var dataAttributes = ['economy (mpg)', 'cylinders', 'power (hp)', '0-60 mph (s)'];
+var dataAttributes = ['economy', 'cylinders', 'power', 'mph'];
 var N = dataAttributes.length;
 
 // Compute chart dimensions
@@ -21,13 +21,16 @@ var cellHeight = (svgHeight - padding.t - padding.b) / N;
 // Global x and y scales to be used for all SplomCells
 var xScale = d3.scaleLinear().range([0, cellWidth - cellPadding]);
 var yScale = d3.scaleLinear().range([cellHeight - cellPadding, 0]);
-var colorScale = d3.scaleSequential(d3.interpolateBuPu).domain([0, 960]);
+var colorScale = d3.scaleSequential(d3.interpolateBuPu).domain([0, 8]);
+
 // axes that are rendered already for you
 var xAxis = d3.axisTop(xScale).ticks(6).tickSize(-cellHeight * N, 0, 0);
 var yAxis = d3.axisLeft(yScale).ticks(6).tickSize(-cellWidth * N, 0, 0);
 // Ordinal color scale for cylinders color mapping
-var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+//var colorScale = d3.scaleOrdinal(d3.schemeBlues);
 // Map for referencing min/max per each attribute
+let dropdown = document.querySelector('#colorAttrSelector');
+let selectedCriteria = dropdown[dropdown.selectedIndex].value;
 var extentByAttribute = {};
 // Object for keeping state of which cell is currently being brushed
 var brushCell;
@@ -49,31 +52,33 @@ SplomCell.prototype.init = function(g) {
 }
 
 SplomCell.prototype.update = function(g, data) {
-    var cell = d3.select(g);
-
+	
+	var self = this;
+	
+	var cell = d3.select(g);
     // Update the global x,yScale objects for this cell's x,y attribute domains
-    xScale.domain(extentByAttribute[this.x]);
-    yScale.domain(extentByAttribute[this.y]);
+    xScale.domain(extentByAttribute[self.x]);
+	yScale.domain(extentByAttribute[self.y]);
 
-    // Save a reference of this SplomCell, to use within anon function scopes
-    var self = this;
 
     var dots = cell.selectAll('.dot')
 	.data(data, function(d){
-		return d.name +'-'+d.year+'-'+d.cylinders; // Create a unique id for the car
+		return d.name + '-' + d.year + '-' + d.cylinders; // Create a unique id for the car
 	});
 
     var dotsEnter = dots.enter()
 	.append('circle')
 	.attr('class', 'dot')
-	.style("fill", function(d) { return colorScale(d.cylinders); })
 	.attr('r', 4);
-
+	
     dots.merge(dotsEnter).attr('cx', function(d){
 		return xScale(d[self.x]);
 	})
 	.attr('cy', function(d){
 		return yScale(d[self.y]);
+	})
+	.attr('fill', function(d){
+		return colorScale(d[selectedCriteria]);
 	});
 	
 	dotsEnter.on('mouseover', toolTip.show).on('mouseout', toolTip.hide);
@@ -136,10 +141,10 @@ var toolTip = d3.tip()
 .attr("class", "d3-tip")
 .offset([-12, 0])
 .html(function(d) {
-	return "<h5>"+d['name']+"</h5><table><thead><tr><td>0-60 mph (s)</td><td>Power (hp)</td><td>Cylinders</td><td>Year</td></tr></thead>"
-			+ "<tbody><tr><td>"+d['0-60 mph (s)']+"</td><td>"+d['power (hp)']+"</td><td>"+d['cylinders']+"</td><td>"+d['year']+"</td></tr></tbody>"
-			+ "<thead><tr><td>Economy (mpg)</td><td colspan='2'>Displacement (cc)</td><td>Weight (lb)</td></tr></thead>"
-			+ "<tbody><tr><td>"+d['economy (mpg)']+"</td><td colspan='2'>"+d['displacement (cc)']+"</td><td>"+d['weight (lb)']+"</td></tr></tbody></table>"
+	return "<h5>"+d['name']+"</h5><table><thead><tr><td>mph</td><td>power</td><td>Cylinders</td><td>Year</td></tr></thead>"
+			+ "<tbody><tr><td>"+d['mph']+"</td><td>"+d['power']+"</td><td>"+d['cylinders']+"</td><td>"+d['year']+"</td></tr></tbody>"
+			+ "<thead><tr><td>economy</td><td colspan='2'>displacement</td><td>weight</td></tr></thead>"
+			+ "<tbody><tr><td>"+d['economy']+"</td><td colspan='2'>"+d['displacement']+"</td><td>"+d['weight']+"</td></tr></tbody></table>"
 });
 svg.call(toolTip);
 
@@ -154,7 +159,23 @@ d3.csv('cars.csv', dataPreprocessor).then(function(dataset) {
 		});
 	});
 
-	// Pre-render gridlines and labels
+	updateChart();
+});
+
+function updateChart() {
+	
+	selectedCriteria = dropdown[dropdown.selectedIndex].value;
+
+	var max = d3.max(cars, function(d) { 
+		return +d[selectedCriteria];
+	});
+	var min = d3.min(cars, function(d) { 
+		return +d[selectedCriteria];
+	});
+	
+	if (min < 0) min = 0;
+	colorScale = d3.scaleSequential(d3.interpolateBuPu).domain([min, max]);
+	
 	chartG.selectAll('.x.axis')
 	.data(dataAttributes)
 	.enter()
@@ -216,13 +237,13 @@ d3.csv('cars.csv', dataPreprocessor).then(function(dataset) {
 	
 	cellEnter.each(function(cell){
 		cell.init(this);
-		cell.update(this, dataset);
+		cell.update(this, cars);
 	});
-	
-});
+}
 
-document.addEventListener('change', function() {
-	
+document.querySelector('#colorAttrSelector').addEventListener('change', function(event) {
+
+	updateChart();
 });
 
 
@@ -231,12 +252,12 @@ document.addEventListener('change', function() {
 function dataPreprocessor(row) {
     return {
         'name': row['name'],
-        'economy (mpg)': +row['economy (mpg)'],
+        'economy': +row['economy (mpg)'],
         'cylinders': +row['cylinders'],
-        'displacement (cc)': +row['displacement (cc)'],
-        'power (hp)': +row['power (hp)'],
-        'weight (lb)': +row['weight (lb)'],
-        '0-60 mph (s)': +row['0-60 mph (s)'],
+        'displacement': +row['displacement (cc)'],
+        'power': +row['power (hp)'],
+        'weight': +row['weight (lb)'],
+        'mph': +row['0-60 mph (s)'],
         'year': +row['year']
     };
 }
