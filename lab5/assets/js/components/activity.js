@@ -22,7 +22,6 @@ module.exports = function() {
 			
 			this.addEvents();
 			this.setUpScales();
-			
 		},
 		
 		setUpScales: function() {
