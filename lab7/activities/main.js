@@ -219,9 +219,10 @@ function updateChart() {
 		});
 	});
 	
-	var cellEnter = chartG.selectAll('.cell')
-	.data(cells)
-	.enter()
+	var cellUpdate = chartG.selectAll('.cell')
+	.data(cells);
+	
+	var cellEnter = cellUpdate.enter()
 	.append('g')
 	.attr('class', 'cell')
 	.attr("transform", function(d) {
@@ -230,7 +231,7 @@ function updateChart() {
 		var ty = d.row * cellHeight + cellPadding / 2;
 		return "translate("+[tx, ty]+")";
 	});
-	
+		
 	cellEnter.append('g')
 	.attr('class', 'brush')
 	.call(brush);
@@ -239,10 +240,14 @@ function updateChart() {
 		cell.init(this);
 		cell.update(this, cars);
 	});
+	
+	cellUpdate.each(function(cell){
+		cell.update(this, cars);
+	});
 }
 
 document.querySelector('#colorAttrSelector').addEventListener('change', function(event) {
-
+	console.log('event listener');
 	updateChart();
 });
 
