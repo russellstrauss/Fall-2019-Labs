@@ -42,4 +42,4 @@ svg.append('text')
 svg.append('text')
     .attr('class', 'title')
     .attr('transform','translate(360,30)')
-    .text('Top 10 HR Leaders per MLB Season');
+    .text('Top 10 Homerun Leaders per MLB Season');

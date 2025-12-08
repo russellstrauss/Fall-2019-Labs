@@ -34,25 +34,31 @@ module.exports = function () {
       d3.csv('../activity_2/baseball_hr_leaders.csv').then(function (dataset) {
         // Add empty circle elements, one for each row of data
         var g = d3.select('body #scatterplot svg').selectAll('g').data(dataset).enter().append('g');
-        g.attr('class', 'player'); // Set axes scales
+        g.attr('class', 'player');
 
+        // Set axes scales
         var width = window.innerWidth - 200;
         var height = window.innerHeight - 100;
         var yearScale = d3.scaleLinear().domain([1870, 2017]).range([60, width]);
         var hrScale = d3.scaleLinear().domain([0, 75]).range([height, 20]);
-        var svg = d3.select('svg'); // Add x-axis with markers in 20-year increments
+        var svg = d3.select('svg');
 
+        // Add x-axis with markers in 20-year increments
         svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(yearScale).tickFormat(function (d) {
           return d;
-        })); // Label x-axis
+        }));
 
-        svg.append('text').attr('class', 'label').attr('transform', 'translate(' + (width / 2).toString() + ',' + (height + 75).toString() + ')').text('MLB Season Year'); // Add y-axis markers in increments of 10
+        // Label x-axis
+        svg.append('text').attr('class', 'label').attr('transform', 'translate(' + (width / 2).toString() + ',' + (height + 75).toString() + ')').text('MLB Season Year');
 
-        svg.append('g').attr('class', 'y axis').attr('transform', 'translate(55,0)').call(d3.axisLeft(hrScale)); // Add y-axis label
+        // Add y-axis markers in increments of 10
+        svg.append('g').attr('class', 'y axis').attr('transform', 'translate(55,0)').call(d3.axisLeft(hrScale));
 
+        // Add y-axis label
         svg.append('text') // TODO: measure width and subtract half
-        .attr('class', 'label').attr('transform', 'translate(-15,' + ((height - 115) / 2).toString() + ') rotate(90)').text('Home Runs'); // Add graph title
+        .attr('class', 'label').attr('transform', 'translate(-15,' + ((height - 115) / 2).toString() + ') rotate(90)').text('Home Runs');
 
+        // Add graph title
         svg.append('text') // TODO: measure width and then subtract half
         .attr('class', 'title').attr('transform', 'translate(' + (width / 2 - 200).toString() + ',30)').text('Top 10 HR Leaders per MLB Season');
         var circle = self.setCirclePositionWithLabels(g, yearScale, hrScale);
@@ -103,11 +109,8 @@ module.exports = function () {
 "use strict";
 
 var Activity1 = require('./components/activity-1.js');
-
 var Scatterplot = require('./components/scatterplot.js');
-
 var Utilities = require('./utils.js');
-
 (function () {
   document.addEventListener('DOMContentLoaded', function () {
     var activity1 = document.getElementById('homerun-leaders');
@@ -122,7 +125,6 @@ var Utilities = require('./utils.js');
 
 (function () {
   var appSettings;
-
   window.utils = function () {
     return {
       appSettings: {
@@ -150,20 +152,17 @@ var Utilities = require('./utils.js');
         var timeout;
         return function () {
           var context = this,
-              args = arguments;
-
+            args = arguments;
           var later = function later() {
             timeout = null;
             if (!immediate) func.apply(context, args);
           };
-
           var callNow = immediate && !timeout;
           clearTimeout(timeout);
           timeout = setTimeout(later, wait);
           if (callNow) func.apply(context, args);
         };
       },
-
       /* Purpose: Detect if any of the element is currently within the viewport */
       anyOnScreen: function anyOnScreen(element) {
         var win = $(window);
@@ -178,7 +177,6 @@ var Utilities = require('./utils.js');
         bounds.bottom = bounds.top + element.outerHeight();
         return !(viewport.right < bounds.left || viewport.left > bounds.right || viewport.bottom < bounds.top || viewport.top > bounds.bottom);
       },
-
       /* Purpose: Detect if an element is vertically on screen; if the top and bottom of the element are both within the viewport. */
       allOnScreen: function allOnScreen(element) {
         var win = $(window);
@@ -196,7 +194,6 @@ var Utilities = require('./utils.js');
       secondsToMilliseconds: function secondsToMilliseconds(seconds) {
         return seconds * 1000;
       },
-
       /*
       * Purpose: This method allows you to temporarily disable an an element's transition so you can modify its proprties without having it animate those changing properties.
       * Params:
@@ -212,7 +209,6 @@ var Utilities = require('./utils.js');
       }
     };
   }();
-
   module.exports = window.utils;
 })();
 
