@@ -20,7 +20,7 @@ module.exports = function() {
 				
 				// Set axes scales (reuse svgElement)
 				let svg = svgElement;
-				let xOffset = 200;
+				let xOffset = 100;
 				let yOffset = 100;
 				let width = window.innerWidth - xOffset;
 				let height = window.innerHeight - yOffset;
@@ -38,8 +38,8 @@ module.exports = function() {
 				let planetRadius = d3.extent(dataset, function(d) {
 					return +d['radius'];
 				});
-				let xScale = d3.scaleLinear().domain(hzdExtent).range([100, width]);
-				let yScale = d3.scaleLog().domain(mass).range([100, height]);
+				let xScale = d3.scaleLinear().domain(hzdExtent).range([xOffset, width]);
+				let yScale = d3.scaleLog().domain(mass).range([height, yOffset]);
 				let radiusScale = d3.scaleSqrt().domain(planetRadius).range([0, maxRadius]);
 				let colorScale = d3.scaleQuantize().domain(hzdExtent).range(['#FF3300', '#29AD37', '#27EFFF']);
 				

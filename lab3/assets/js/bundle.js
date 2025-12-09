@@ -6,17 +6,21 @@ module.exports = function () {
   return {
     settings: {},
     init: function init() {
-      d3.csv('../../activity_1_and_activity_2/exoplanets.csv').then(function (dataset) {
-        var circle = d3.select('body svg').selectAll('circle').data(dataset).enter().append('circle');
+      var svgElement = d3.select('#main svg');
+      d3.csv('exoplanets.csv').then(function (dataset) {
+        var circle = svgElement.selectAll('circle').data(dataset).enter().append('circle');
         circle.attr('class', 'planet');
 
-        // Set axes scales
-        var svg = d3.select('svg');
-        var xOffset = 200;
+        // Set axes scales (reuse svgElement)
+        var svg = svgElement;
+        var xOffset = 100;
         var yOffset = 100;
         var width = window.innerWidth - xOffset;
         var height = window.innerHeight - yOffset;
         var maxRadius = 20;
+
+        // Set SVG dimensions
+        svg.attr('width', window.innerWidth).attr('height', window.innerHeight);
         var hzdExtent = d3.extent(dataset, function (d) {
           return +d['habital_zone_distance'];
         });
